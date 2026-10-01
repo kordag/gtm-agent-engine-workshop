@@ -42,6 +42,23 @@ class ScoreProspectTests(unittest.TestCase):
 
         self.assertEqual(result["rubric_breakdown"]["tech_stack_match"], 75)
 
+    @patch("gtm_agent.gtm_agent._scoring_llm")
+    def test_empty_required_tech_stack_scores_as_full_match(self, scoring_llm):
+        scoring_llm.invoke.return_value = SegmentScore(
+            segment_fit=75,
+            justification="No technologies are required.",
+        )
+
+        result = score_prospect.func(
+            self.prospect,
+            {
+                **self.offering,
+                "required_tech_stack": [],
+            },
+        )
+
+        self.assertEqual(result["rubric_breakdown"]["tech_stack_match"], 100)
+
 
 if __name__ == "__main__":
     unittest.main()
